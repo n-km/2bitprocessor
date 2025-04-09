@@ -43,7 +43,7 @@ The processor also supports the following shell commands:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/n-km/2bitprocessor
+   git clone https://github.com/n-km/2bitprocessor.git
    ```
 
 
