@@ -45,3 +45,11 @@ The processor also supports the following shell commands:
    ```bash
    git clone https://github.com/n-km/2bitprocessor.git
    cd 2bitprocessor
+
+
+2. Run the processor:
+
+```bash
+python 2bit.py
+```
+Enter commands in the prompt (see Instruction Set above for details).
