@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>True 2-Bit Processor Visualizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .processor {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .registers {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .register {
+            text-align: center;
+            padding: 15px;
+            background-color: #e9f7fe;
+            border-radius: 8px;
+            width: 45%;
+        }
+        .register-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .binary {
+            font-family: monospace;
+            color: #d63384;
+        }
+        .memory {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .memory-cell {
+            width: 20%;
+            text-align: center;
+            padding: 10px;
+            background-color: #e8f5e9;
+            border-radius: 5px;
+            margin: 5px;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        input {
+            padding: 10px;
+            width: 100px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #388e3c;
+        }
+        .log {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #333;
+            color: #fff;
+            border-radius: 5px;
+            font-family: monospace;
+            height: 200px;
+            overflow-y: auto;
+        }
+        .help {
+            background-color: #fff8e1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .highlight {
+            background-color: #fffde7;
+            transition: background-color 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <div class="processor">
+        <h1>True 2-Bit Processor</h1>
+        
+        <div class="registers">
+            <div class="register" id="r0">
+                <h3>Register R0</h3>
+                <div class="register-value">0</div>
+                <div class="binary">0b00</div>
+            </div>
+            <div class="register" id="r1">
+                <h3>Register R1</h3>
+                <div class="register-value">0</div>
+                <div class="binary">0b00</div>
+            </div>
+        </div>
+        
+        <h3>Memory (2-bit cells)</h3>
+        <div class="memory">
+            <div class="memory-cell">0: <span class="binary">0b00</span></div>
+            <div class="memory-cell">1: <span class="binary">0b01</span></div>
+            <div class="memory-cell">2: <span class="binary">0b10</span></div>
+            <div class="memory-cell">3: <span class="binary">0b11</span></div>
+        </div>
+        
+        <div class="controls">
+            <h3>Processor Controls</h3>
+            <input type="text" id="command" placeholder="Enter command">
+            <button onclick="executeCommand()">Execute</button>
+            <button onclick="showHelp()">Help</button>
+            <button onclick="resetProcessor()">Reset</button>
+        </div>
+        
+        <div class="log" id="log">
+            >> True 2-Bit Processor initialized<br>
+            >> Enter 2-bit commands (00, 01, 10, 11)<br>
+            >> Type 'help' for options
+        </div>
+    </div>
+    
+    <div class="help" id="help" style="display: none;">
+        <h3>2-Bit Processor Help</h3>
+        <p><strong>Commands (2-bit binary):</strong></p>
+        <ul>
+            <li><span class="binary">00</span>: NOP (No Operation)</li>
+            <li><span class="binary">01</span>: INC (R0 += 1)</li>
+            <li><span class="binary">10</span>: DEC (R0 -= 1)</li>
+            <li><span class="binary">11</span>: SWAP (R0 ↔ R1)</li>
+        </ul>
+        <p><strong>Shell Commands:</strong></p>
+        <ul>
+            <li><code>echo</code>: Show registers</li>
+            <li><code>help</code>: Show this help</li>
+            <li><code>exit</code>: Reset processor</li>
+        </ul>
+    </div>
+    
+    <script>
+        const processor = {
+            registers: [0, 0],
+            memory: [0b00, 0b01, 0b10, 0b11],
+            
+            execute: function(instruction) {
+                instruction = instruction & 0b11;
+                let description = "";
+                
+                // Highlight the register that will change
+                if (instruction === 0b01 || instruction === 0b10) {
+                    highlightRegister('r0');
+                } else if (instruction === 0b11) {
+                    highlightRegister('r0');
+                    highlightRegister('r1');
+                }
+                
+                if (instruction === 0b00) {
+                    description = "NOP (No Operation)";
+                } 
+                else if (instruction === 0b01) {
+                    this.registers[0] = (this.registers[0] + 1) & 0b11;
+                    description = "INC (R0 += 1)";
+                } 
+                else if (instruction === 0b10) {
+                    this.registers[0] = (this.registers[0] - 1) & 0b11;
+                    description = "DEC (R0 -= 1)";
+                } 
+                else if (instruction === 0b11) {
+                    [this.registers[0], this.registers[1]] = [this.registers[1], this.registers[0]];
+                    description = "SWAP (R0 ↔ R1)";
+                }
+                
+                this.updateDisplay();
+                this.log(`>> Executed: ${description}`);
+                this.log(`R0=${this.registers[0]}, R1=${this.registers[1]}`);
+            },
+            
+            updateDisplay: function() {
+                document.getElementById('r0').querySelector('.register-value').textContent = this.registers[0];
+                document.getElementById('r0').querySelector('.binary').textContent = `0b${this.registers[0].toString(2).padStart(2, '0')}`;
+                
+                document.getElementById('r1').querySelector('.register-value').textContent = this.registers[1];
+                document.getElementById('r1').querySelector('.binary').textContent = `0b${this.registers[1].toString(2).padStart(2, '0')}`;
+            },
+            
+            log: function(message) {
+                const logElement = document.getElementById('log');
+                logElement.innerHTML += `<br>${message}`;
+                logElement.scrollTop = logElement.scrollHeight;
+            },
+            
+            reset: function() {
+                this.registers = [0, 0];
+                this.updateDisplay();
+                this.log(">> Processor reset");
+            }
+        };
+        
+        function highlightRegister(registerId) {
+            const register = document.getElementById(registerId);
+            register.classList.add('highlight');
+            setTimeout(() => {
+                register.classList.remove('highlight');
+            }, 1000);
+        }
+        
+        function executeCommand() {
+            const cmdInput = document.getElementById('command');
+            const cmd = cmdInput.value.trim().toLowerCase();
+            cmdInput.value = '';
+            
+            processor.log(`>> ${cmd}`);
+            
+            if (cmd === "exit") {
+                processor.reset();
+            } 
+            else if (cmd === "echo") {
+                processor.log(`R0=${processor.registers[0]}, R1=${processor.registers[1]}`);
+            } 
+            else if (cmd === "help") {
+                showHelp();
+            } 
+            else {
+                try {
+                    const instruction = parseInt(cmd, 2);
+                    if (isNaN(instruction) || instruction > 0b11) {
+                        processor.log("Error: Only 2-bit commands (00, 01, 10, 11) are allowed!");
+                    } else {
+                        processor.execute(instruction);
+                    }
+                } catch (e) {
+                    processor.log("Invalid! Allowed: 2-bit binary or 'echo/help/exit'.");
+                }
+            }
+        }
+        
+        function showHelp() {
+            const helpDiv = document.getElementById('help');
+            helpDiv.style.display = helpDiv.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        function resetProcessor() {
+            processor.reset();
+        }
+        
+        // Initialize display
+        processor.updateDisplay();
+        
+        // Allow pressing Enter to execute command
+        document.getElementById('command').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                executeCommand();
+            }
+        });
+    </script>
+</body>
+</html>
